@@ -1,7 +1,8 @@
 coinGo CLI: 
 Go is strictly call by value language. Even when you pass a pinter inside the function a copy of the pointer is created.
 
-```package main
+```go
+package main
 
 import "fmt"
 
@@ -15,7 +16,8 @@ func main() {
 // a copy of pointer of a will be created in increment function
 func increment(x *int) {
 	x = nil
-}```
+}
+```
 
 
 But maps and slices are curious case in GO. map and slice implemented as data stricture that hold memory addresses.(they are reference type )
@@ -30,7 +32,9 @@ Import statement: to gain access of another packages inside of one we are creati
 
 Basic Types in GO:
 
-```String
+```go
+String
 bool
 Int
-float64``` 
+float64
+``` 
