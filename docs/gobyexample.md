@@ -1039,6 +1039,64 @@ func main() {
    sayHello("world")
 
 
-}```
+}
+```
+
+## go mod init
+
+go mod init <module path>
+
+Ex: 
+go mod init example/m
+
+its creates go.mod file in current directory  to track all package dependencies
+
+
+## go mod tidy
+
+find module(imported packages in a go file) for packages(go file)
+
+```go
+package main
+
+import "fmt"
+
+import "rsc.io/quote"
+
+func main() {
+    fmt.Println(quote.Go())
+}
+```
+
+## Start a module that others can use
+
+mkdir greetings
+cd greetings
+
+go mod init create-module/greetings  // it will create go.mod file under greetings dir
+
+## Create the workspace
+
+creating go.work file to specifiy a workspace(multi-module) with the module
+
+initialize the work space
+
+multi-module> go work init ./hello
+
+Run the program in the workspace directory(multi-module)
+mutli-module> go run ./hello
+
+NOTE: go commands include all the modules in workspace as main modules. THis allow 
+us to refer to a package in the module, even outside the module.
+
+
+## go mod vendor
+
+go mod tidy
+go mod vendor
+
+this places the external dependencies for your chaincode into a local vendor directory
+
+
 
 
