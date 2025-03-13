@@ -1,5 +1,5 @@
 coinGo CLI: 
-Go is strictly call by value language. Even when you pass a pinter inside the function a copy of the pointer is created.
+Go is strictly call by value (a copy is made) language. Even when you pass a pointer inside the function a copy of the pointer is created(passin a pointer itself is by value).
 
 ```go
 package main
@@ -13,7 +13,8 @@ func main() {
 	fmt.Println(aPtr) // becaue go is strictly call by value thats why it stil hold the addreess
 }
 
-// a copy of pointer of a will be created in increment function
+// only copy of the aPtr will be passed not the orignal aPtr
+// x is the copy of aPtr, modifying it does not impat aPtr in main function
 func increment(x *int) {
 	x = nil
 }
@@ -42,9 +43,9 @@ float64
  Typed and Untyped Constants
 In go constant are treated in a different way than any other language. GO has a very strong type system that doesn’t allow implicit conversion between any of the types. Even with the same numeric types no operation is allowed without explicit conversion. For eg you cannot add a int32 and int64 value. To add those either int32 has to be explicitly converted to int64 or vice versa. However untyped constant have the flexibility of temporary escape from the GO’s type system as we will see in this article.
 Untyped constants:
-Const a = 100; // hidden type is uint64
+const a = 100; // hidden type is uint64
 Typed constants:
-Const a unit32 = 100; // type is explicitly define to unit32
+const a unit32 = 100; // type is explicitly define to unit32
 Exampl: below one gives an error 
 cannot use a (constant 30 of type int32) as type int64 in assignment
 ```go
@@ -53,7 +54,7 @@ func main() {
    var i1 int32
    var i2 int64
    i1 = a
-   i2 = a
+   i2 = a   // cannot use a (constant 30 of type int32) as type int64 in assignment
 }
 ```
 
@@ -62,33 +63,37 @@ func main() {
 Character constant in Go:
 
 NOTE: 
-typed named character constant can not be assigned to different type with var key word.
-Type myChar int32;
-Const aa unit32 = ‘a’;
-
-Var bb myChar = aa; // thow error , cant assign to different type
-
-Untyped named character constant can be assign to different type with var keyword
+typed named character constant can not be assigned to different type with var or const key word.
 ```go
-const aa = ‘a’;
- Var bb myChar = aa;
-  Var cc int32 = aa;
+type myChar int32;
+const aa unit32 = 'a'; // character constatant represenig with single quote
+var bb myChar = aa; // thow error , cant assign to different type
+
+```
+
+Untyped named character constant can be assign to different type with var or const keyword
+```go
+type myChar int32;
+const aa = 'a'; // untyped named char constant is explicitly assigned to an identifier usin const
+var bb myChar = aa;
+var cc int32 = aa;
 ```
 
 
-Untyped unnamed char constant can be assing ed to different type with var keyword
+Untyped unnamed char constant can be assinged to different type with var keyword
 
 ```go
-Var bb myChar = ‘a’;
-Var cc int32 = ‘a’;
+var x  = 'a'; //type inferred as rune
+var y int= x; // assing to intee
+var z byte = x; // assign to bye
 ```
 
 
 package main :  a package is a way to group functions, it is maid of all the files in  the directory. Go   consider directory a package. And a package can contain only one function with the name main,
-Package == workspace == project
+Package == workspace == project == directory
 
 Two type of packages
-Executable: if package main is declare on the top of the file and it must have func main.
+Executable: package main is declare on the top of the file and it must have func main.
 Reusable: compiling non executable files return nothing. They are helper or dependency code,
 
 
@@ -133,12 +138,17 @@ func main() {
 
 
 
-Array:
+Array: An array's length is determined at compile-time and cannot be changed.
+Assigning an array to another variable or passing it to a function results in a copy of the entire array.
+var  arr [3]int = [3]int{1,2,3}
+
+ Arrays are passed by value (copy), while slices are passed by reference.
 
 Slice: Slice are like reference to array, slice does not hold any data , it just describe the section of underlying array. Like if changing the element of slice , modified the underlaying array element,
-A slice s a data structure that holds length, capacity and pointer to the memory where data is stored.
+A slice is a data structure that holds length, capacity and pointer to the memory where data is stored.
+Slices reference an underlying array. Assigning a slice to another variable or passing it to a function does not copy the underlying data.
 
-Slicing is the process of taking the portion of slice and creating a new slice from it.the new slice refer to the same underlaying array, making any chaing to new silence will reflect in the original slice.
+Slicing: Slicing is the process of taking the portion of slice and creating a new slice from it.the new slice refer to the same underlaying array, making any chaing to new silence will reflect in the original slice.
 
 ```go
 package main
@@ -155,7 +165,7 @@ func main() {
    fmt.Println(slice)
 
 
-   var str = [4]string{
+   var str = [4]string{ 
        "John",
        "Paul",
        "George",
@@ -202,12 +212,12 @@ func main() {
    // below slice expression are equilentconst
 
 
-   // var a[10]int
+   // var a [10]int;
    // a[0:10]
    // a[:10]
    // a[0:]
    // a[:]
-
+    fmt.Println(a[0:10], a[:10], a[0:], a[:]) // [0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0 0 0]
 
 }
 ```
@@ -268,7 +278,7 @@ var m map[string]Vertex // nil map
 
 
 func main() {
-   m = make(map[string]Vertex)
+   m = make(map[string]Vertex)   // assiging non nil value while declare
    m["bela vita"] = Vertex{
        40.0344, -43.0877,
    }
@@ -327,7 +337,7 @@ func applyOperation(a, b int, operation func(a, b int) int) int {
 
 
 func main() {
-   // Assigning the add function to a variable
+   // Assigning the add function to a variable "addFunc"
    var addFunc func(a, b int) int
    addFunc = add
 
@@ -350,7 +360,8 @@ func main() {
 
 
 
-Function Closers:  A powerful concept in Golang that allows a function to carry and capture the surrounding lexical scope. even when they are executed outside of their original scope. Lexical scope includes the variables that were in the scope when the closure was created.
+Function Closers:  A powerful concept in Golang that allows a function to carry and capture the surrounding lexical scope. even when they are executed outside of their original scope.
+Lexical scope includes the variables that were in the scope when the closure was created.
 
 ```go
 package main
@@ -470,7 +481,7 @@ NOTE: method can not be declared on receiver whose type is defined in other pack
 NOTE: method can be declared on receiver that are defined in same package as method.
 
 
-NOTE: methods can be defined with pointer receivers, pointer receivers are more common than value receiver, A method wita  pointer receiver can modified the value to which the pinter point , in below example pointer receiver in scale modified the Vertex value
+NOTE: methods can be defined with pointer receivers, pointer receivers are more common than value receiver, A method wita  pointer receiver can modified the value to which the pointer point , in below example pointer receiver in scale modified the Vertex value
 ```go 
 package main
 import (
@@ -498,13 +509,13 @@ func main() {
 
 Pointer and Method Indirection:
 Function with pointer argument must take an pointer
-Var v Vertex
+var v Vertex
 Scale(&v, 10)   // OK
 Scale(v, 10) // compiler error
 But the method with a pointer receiver can take either a value or a pointer
 
 
-Var v Vertex
+var v Vertex
 v.Scale(10) // ok
 P := &v;
 p.Scale(10) // ok
@@ -522,7 +533,7 @@ func (v *Vertex) Scalee(f float64) {
 }
 func ScaleFunc(v *Vertex, f float64) {
    v.x = v.x * f
-   v.x = v.x * f
+   v.y = v.y * f
 }
 func main() {
    v := Vertex{2, 3}
@@ -541,13 +552,14 @@ func main() {
 Reverse is also true like if method with receiver value can take pointer as well as value 
 Var v Vertex
 v.Scalee(10)  // OK
-(&v).Scalle(10)  // OK
+(&v).Scalee(10)  // OK
 But for function
 ScaleFunc(v, 10)
 ScaleFunc(&v, 10) // compiler error
-Choosing a value or pointer receiver: 
-1st Method can modified the value  pointer point to 
-2nd avoid coping the value each time method is called , it can be efficient when receiver is larger struct even though method dont modified the receiver value,
+
+NOTE: Choosing a value or pointer receiver: 
+1st Method can modified the value, pointer point to 
+2nd avoid coping the value each time method is called , it can be efficient when receiver is larger struct even though method don't modified the receiver value,
 ```go
 package main
 import (
@@ -712,7 +724,7 @@ Empty interface is used by the code that handle value of unknow type. Ex: frm.Pr
 package main
 import "fmt"
 func main() {
-   / / Using empty interface to hold values of different types
+   // Using empty interface to hold values of different types
    var i interface{}
    i = "hello"
    describeee(i)
@@ -725,6 +737,7 @@ func describeee(i interface{}) {
 ```
 
 NOTE: The empty interface allows us to work with values of different types without having to define multiple function signatures or data structures for each type. It is commonly used in Go for situations where you need to handle various types dynamically, such as in reflection or when designing generic algorithms. However, excessive use of empty interfaces can make the code harder to understand and maintain, so it should be used judiciously.
+
 Type Assertions: 
 A assertion type provide a interface value’s underlaying concrete value
      t: = i.(T)
@@ -760,6 +773,7 @@ Usecase 3: Error Handling:  some type a function can return a error interface, t
  If networkError, ok:= err.(net.Error()); ok{
            fmt.Println(“network error : ”,networkError )
 }
+
 Type Switches:  
 A type switches is a construct that permits several type assertions in series.
 It is like switch statement but cases in type switch specify types instead of values.
@@ -1047,13 +1061,19 @@ func main() {
 go mod init <module path>
 
 Ex: 
-go mod init example/m
+go mod init gobyexample/greetings
 
 its creates go.mod file in current directory  to track all package dependencies
 
 
 ## go mod tidy
 
+it scan your codebase and adds any missing dependencies that are needed to
+build your project. 
+remove unused dependencies
+update go.sum file by adding missing checksums and removing unncecessary onces,
+maintain version consistency and also prunes vendor directory by removing packages
+that are not required
 find module(imported packages in a go file) for packages(go file)
 
 ```go
@@ -1073,7 +1093,7 @@ func main() {
 mkdir greetings
 cd greetings
 
-go mod init create-module/greetings  // it will create go.mod file under greetings dir
+go mod init gobyexample/greetings  // it will create go.mod file under greetings dir
 
 ## Create the workspace
 
@@ -1091,11 +1111,15 @@ us to refer to a package in the module, even outside the module.
 
 
 ## go mod vendor
+create vendor directory within your project. this contain copy of dependecny your project required.
 
-go mod tidy
 go mod vendor
 
 this places the external dependencies for your chaincode into a local vendor directory
+
+go build -mod=vendor
+this ensure your project builds use the dependencies stored in the vendor directory.
+
 
 
 
